@@ -7,10 +7,13 @@ import com.google.gson.GsonBuilder;
 public class TrackHandler
 {
     public static Circuits circuits;
-    private static int boundaryOffset = 0; // set to 0 for no clipping issue, at 0 half the kart can go off the track though
+    private static int boundaryOffset = 10; // set to 0 for no clipping issue, at 0 half the kart can go off the track though
+    private static int selectedTrack = 0;
 
-    public static void LoadTracks()
+    public static void LoadTracks(int trackID)
     {
+        selectedTrack = trackID;
+
         try
         {
             Path trackPath = Path.of("resources/tracks.json");
@@ -22,6 +25,11 @@ public class TrackHandler
         catch (Exception e)
         {
             System.out.println(e.toString());
+        }
+
+        if (circuits == null)
+        {
+            CreateTrack();
         }
     }
 
@@ -48,48 +56,40 @@ public class TrackHandler
                     if (kart.prevKartPos[1] >= circuits.tracks.get(0).startFinish && kart.kartPosition[1] < circuits.tracks.get(0).startFinish)
                     {
                         kart.kartLapCount += 1;
-                        //System.out.println(kart.kartLapCount);
                     }
                     else if (kart.prevKartPos[1] <= circuits.tracks.get(0).startFinish && kart.kartPosition[1] < circuits.tracks.get(0).startFinish)
                     {
                         kart.kartLapCount -= 1;
-                        //System.out.println(kart.kartLapCount);
                     }
                     break;
                 case 1:
                     if (kart.prevKartPos[0] <= circuits.tracks.get(0).startFinish && kart.kartPosition[0] > circuits.tracks.get(0).startFinish)
                     {
                         kart.kartLapCount += 1;
-                        //System.out.println(kart.kartLapCount);
                     }
                     else if (kart.prevKartPos[0] >= circuits.tracks.get(0).startFinish && kart.kartPosition[0] < circuits.tracks.get(0).startFinish)
                     {
                         kart.kartLapCount -= 1;
-                        //System.out.println(kart.kartLapCount);
                     }
                     break;
                 case 2:
                     if (kart.prevKartPos[1] >= circuits.tracks.get(0).startFinish && kart.kartPosition[1] < circuits.tracks.get(0).startFinish)
                     {
                         kart.kartLapCount -= 1;
-                        //System.out.println(kart.kartLapCount);
                     }
                     else if (kart.prevKartPos[1] <= circuits.tracks.get(0).startFinish && kart.kartPosition[1] < circuits.tracks.get(0).startFinish)
                     {
                         kart.kartLapCount += 1;
-                        //System.out.println(kart.kartLapCount);
                     }
                     break;
                 case 3:
                     if (kart.prevKartPos[0] <= circuits.tracks.get(0).startFinish && kart.kartPosition[0] > circuits.tracks.get(0).startFinish)
                     {
                         kart.kartLapCount -= 1;
-                        //System.out.println(kart.kartLapCount);
                     }
                     else if (kart.prevKartPos[0] >= circuits.tracks.get(0).startFinish && kart.kartPosition[0] < circuits.tracks.get(0).startFinish)
                     {
                         kart.kartLapCount += 1;
-                        //System.out.println(kart.kartLapCount);
                     }
                     break;
             }
@@ -139,7 +139,7 @@ public class TrackHandler
         }
     }
 
-    public static void CreateTracks()
+    public static void CreateTrack()
     {
         circuits = new Circuits();
         circuits.tracks = new ArrayList<>();

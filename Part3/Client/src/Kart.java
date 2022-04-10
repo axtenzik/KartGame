@@ -110,69 +110,6 @@ public class Kart
         }
     }
 
-    private void EvaluateCollisions()
-    {
-        if (760 < kartPosition[0] || kartPosition[0] < 40)
-        {
-            kartSpeed = 0;
-            kartPosition[0] = Math.max(40, Math.min(760, kartPosition[0]));
-        }
-        if (560 < kartPosition[1] || kartPosition[1] < 90)
-        {
-            kartSpeed = 0;
-            kartPosition[1] = Math.max(90, Math.min(560, kartPosition[1]));
-        }
-
-        if (490 <= prevKartPos[1] && prevKartPos[1] <= 560)
-        {
-            if (prevKartPos[0] <= 425 && kartPosition[0] > 425)
-            {
-                kartLapCount += 1;
-                System.out.println(kartLapCount);
-            }
-            else if (prevKartPos[0] >= 425 && kartPosition[0] < 425)
-            {
-                kartLapCount -= 1;
-                System.out.println(kartLapCount);
-            }
-            if (!(490 <= kartPosition[1] && kartPosition[1] <= 560) && 110 < kartPosition[0] && kartPosition[0] < 690)
-            {
-                kartSpeed = 0;
-                kartPosition[1] = Math.max(490, kartPosition[1]);
-            }
-        }
-        else if (690 <= prevKartPos[0] && prevKartPos[0] <= 760)
-        {
-            if (!(690 <= kartPosition[0]) && 160 < kartPosition[1] && kartPosition[1] < 490)
-            {
-                kartSpeed = 0;
-                kartPosition[0] = 690;
-            }
-        }
-        else if (90 <= prevKartPos[1] && prevKartPos[1] <= 160)
-        {
-            if(!(kartPosition[1] <= 160) && 110 < kartPosition[0] && kartPosition[0] < 690)
-            {
-                kartSpeed = 0;
-                kartPosition[1] = 160;
-            }
-        }
-        else if (40 <= prevKartPos[0] && prevKartPos[0] <= 110)
-        {
-            if (!(kartPosition[0] <= 110) && 160 < kartPosition[1] && kartPosition[1] < 490)
-            {
-                kartSpeed = 0;
-                kartPosition[0] = 110;
-            }
-        }
-        else
-        {
-            System.out.println("Why is this triggering?");
-        }
-        prevKartPos[0] = kartPosition[0];
-        prevKartPos[1] = kartPosition[1];
-    }
-
     public void AI(int timeStep)
     {
         AIDelay += timeStep;
@@ -193,62 +130,11 @@ public class Kart
             AIDelay = 0;
             kartAngle = (kartAngle + kartLeft) % kartFrames;
         }
-
-        /*
-        if (500 <= kartPosition[1] && kartPosition[1] <= 560 && kartPosition[0] < 700)
-        {
-            if (kartAngle == 4)
-            {
-                kartSpeed = Math.min(kartSpeed + kartAcceleration, AISpeed);
-            }
-            else
-            {
-                AIDelay = 0;
-                kartAngle = (kartAngle + kartLeft) % kartFrames;
-            }
-        }
-        else if (700 <= kartPosition[0] && kartPosition[0] <= 760 && kartPosition[1] > 150)
-        {
-            if (kartAngle == 0)
-            {
-                kartSpeed = Math.min(kartSpeed + kartAcceleration, AISpeed);
-            }
-            else
-            {
-                AIDelay = 0;
-                kartAngle = (kartAngle + kartLeft) % kartFrames;
-            }
-        }
-        else if (90 <= kartPosition[1] && kartPosition[1] <= 150 && kartPosition[0] > 100)
-        {
-            if (kartAngle == 12)
-            {
-                kartSpeed = Math.min(kartSpeed + kartAcceleration, AISpeed);
-            }
-            else
-            {
-                AIDelay = 0;
-                kartAngle = (kartAngle + kartLeft) % kartFrames;
-            }
-        }
-        else if (40 <= kartPosition[0] && kartPosition[0] <= 100 && kartPosition[1] < 500)
-        {
-            if (kartAngle == 8)
-            {
-                kartSpeed = Math.min(kartSpeed + kartAcceleration, AISpeed);
-            }
-            else
-            {
-                AIDelay = 0;
-                kartAngle = (kartAngle + kartLeft) % kartFrames;
-            }
-        }*/
     }
 
     public boolean UpdateKart()
     {
         UpdatePosition();
-        //EvaluateCollisions();
         TrackHandler.CheckCollision(this);
         boolean win = TrackHandler.CheckWin(this);
 
