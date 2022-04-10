@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Objects;
 
 public class KartPanel extends JPanel
 {
@@ -9,20 +10,16 @@ public class KartPanel extends JPanel
     private int currentKart = 0;
     protected ImageIcon[] kart;
 
-
     KartPanel()
     {
-        //this.setBounds(0, 0, 200, 200);
         setPreferredSize(new Dimension(200, 200));
         this.setLayout(null);
-        //Components added here
 
         //LoadImages
         kart = new ImageIcon[kartFrames];
-
         for (int i = 0; i < kart.length; i++)
         {
-            kart[i] = new ImageIcon(getClass().getResource(/*"D:/Uni/Distributed Programming/Kart/Green/" + */kartName + i + ".png"));
+            kart[i] = new ImageIcon(Objects.requireNonNull(getClass().getResource(kartName + i + ".png")));
         }
 
         //Sets timer for 100 milliseconds
@@ -32,19 +29,18 @@ public class KartPanel extends JPanel
 
     public void actionPerformed(ActionEvent e)
     {
-        repaint();
+        //Moved to action performed from paint component as paint component is called when resizing
+        //and the kart will spin faster than intended when resizing
         currentKart = (currentKart + 1) % kartFrames;
+        repaint();
     }
 
     public void paintComponent(Graphics g)
     {
-        //display image
+        //display graphics
         super.paintComponent(g);
 
+        //displays the kart at panel co-ords 75, 75
         kart[currentKart].paintIcon(this, g, 75, 75);
-
-        //reassign the current image to the next sequential image
-        //Moved to action performed as paint component is called when resizing and the kart will spin faster than intended
-        //currentKart = (currentKart + 1) % kartFrames;
     }
 }

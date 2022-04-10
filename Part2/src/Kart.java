@@ -46,8 +46,9 @@ public class Kart
 
         for (int i = 0; i < kartImage.length; i++)
         {
-            Path kartPath = Path.of("resources/" + name + i + ".png");
-            kartImage[i] = new ImageIcon(Objects.requireNonNull(kartPath).toString());
+            //Path kartPath = Path.of("resources/" + name + i + ".png");
+            //kartImage[i] = new ImageIcon(Objects.requireNonNull(kartPath).toString());
+            kartImage[i] = new ImageIcon(Objects.requireNonNull(getClass().getResource(name + i + ".png")));
         }
     }
 

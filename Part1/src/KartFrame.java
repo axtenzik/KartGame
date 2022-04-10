@@ -5,16 +5,14 @@ public class KartFrame extends JFrame
 {
     KartFrame()
     {
-        //Configure frame properties
-        //setBounds(100, 100, 200, 200);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //IMPORTANT!!!
+        //Exit program when hit close
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        //Create object of panel class and add to the frame
-        //getContentPane().add(new KartPanel());
-        //Container cp = getContentPane();
+        //add panel to frame
         KartPanel kp = new KartPanel();
         add(kp);
 
+        //sets size to panel size and sets the location on the screen
         pack();
         setLocation(100,100);
         setVisible(true);
@@ -22,6 +20,7 @@ public class KartFrame extends JFrame
 
     public static void main(String[] args)
     {
+        //makes the window for display
         new KartFrame();
     }
 }

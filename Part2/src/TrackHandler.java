@@ -23,6 +23,11 @@ public class TrackHandler
         {
             System.out.println(e.toString());
         }
+
+        if (circuits == null)
+        {
+            CreateTrack();
+        }
     }
 
     public static int getAIHeading(Kart kart)
@@ -139,7 +144,7 @@ public class TrackHandler
         }
     }
 
-    public static void CreateTracks()
+    public static void CreateTrack()
     {
         circuits = new Circuits();
         circuits.tracks = new ArrayList<>();
