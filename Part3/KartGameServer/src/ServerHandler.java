@@ -4,7 +4,7 @@ import java.net.*;
 public class ServerHandler
 {
     private static GameClientHandler[] handlers;
-    private static int maxClients = 1;
+    private static int maxClients = 2;
     private static int activeClients = 0;
     public static int player = 0;
 
@@ -38,6 +38,7 @@ public class ServerHandler
                 handlers[activeClients] = handler;
 
                 activeClients++;
+                System.out.println(activeClients);
             }
         }
         catch (IOException e)

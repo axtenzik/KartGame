@@ -14,7 +14,6 @@ import com.google.gson.GsonBuilder;
 public class DisplayPanel extends JPanel implements KeyListener, ActionListener
 {
     //Swing stuff
-    //private final KartFrame kFrame;
     private Timer updateTimer;
     private Timer lightsTimer;
     private JButton resumeButton;
@@ -32,7 +31,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
     private boolean outOfMenu = false;
 
     //game running stuff
-    private Kart[] racers;
+    public Kart[] racers;
     public int player = 0;
     private boolean paused = false;
     private boolean countdown = true;
@@ -53,12 +52,18 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         setPreferredSize(new Dimension(displaySize[0], displaySize[1]));
         this.setLayout(null);
 
+        //Load menu
         InitialiseMenus();
 
+        //gets changed later, but need to make at least one due to waiting for other players on the online
+        //it pains the track and needs to paint a kart
         racers = new Kart[1];
-        racers[0] = new Kart("Red", startPos, 550);
+        racers[0] = new Kart("Red", startPos, 550); //User kart
     }
 
+    /**
+     * Initialise menu buttons for display
+     */
     private void InitialiseMenus()
     {
         singleButton = new JButton("Single-player");
@@ -129,6 +134,9 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         add(waitingLabel);
     }
 
+    /**
+     * Method for opening the main menu
+     */
     private void OpenMenu()
     {
         singleButton.setVisible(true);
@@ -141,6 +149,9 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         exitButton.setEnabled(true);
     }
 
+    /**
+     * Method for closing the main menu
+     */
     private void CloseMenu()
     {
         singleButton.setVisible(false);
@@ -153,6 +164,9 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         exitButton.setEnabled(false);
     }
 
+    /**
+     * Method for opening the online menu
+     */
     private void OpenOnline()
     {
         backButton.setVisible(true);
@@ -165,6 +179,9 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         portBox.setEnabled(true);
     }
 
+    /**
+     * Method for closing the online menu
+     */
     private void CloseOnline()
     {
         backButton.setVisible(false);
@@ -177,6 +194,9 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         portBox.setEnabled(false);
     }
 
+    /**
+     * Create and set up the buttons used in the pause menu
+     */
     private void InitialisePause()
     {
         resumeButton = new JButton("Resume");
@@ -190,8 +210,16 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         exitButton.setBounds(250, 375, 350, 75);
     }
 
+    /**
+     * Method for opening the pause menu
+     */
     private void OpenPause()
     {
+        if (!online)
+        {
+            //stop the timer so game freezes when paused
+            updateTimer.stop();
+        }
         paused = true;
 
         resumeButton.setVisible(true);
@@ -200,8 +228,16 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         exitButton.setEnabled(true);
     }
 
+    /**
+     * Method for closing the pause menu
+     */
     private void ClosePause()
     {
+        if (!online)
+        {
+            //start the timer so the game runs
+            updateTimer.start();
+        }
         paused = false;
 
         resumeButton.setVisible(false);
@@ -210,44 +246,70 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         exitButton.setEnabled(false);
     }
 
+    /**
+     * Display the win screen
+     */
     private void WinScreen()
     {
 
     }
 
+    /**
+     * Method for starting the game
+     */
     private void StartGame()
     {
-        racers = new Kart[numberRacers];
-        for (int i = numberRacers - numberAI; i < racers.length; i++)
-        {
-            racers[i] = new Kart("Green", startPos, 550);
-            startPos -= 60;
-        }
-        for (int i = 1; i < numberRacers - numberAI; i++)
-        {
-            racers[i] = new Kart("Blue", startPos, 550);
-            startPos -= 60;
-        }
-        racers[0] = new Kart("Red", startPos, 550);
-
+        //Load/Create the track to be driven on
         TrackHandler.LoadTracks(0);
 
+        //Initialise the timers for play
         updateTimer = new Timer(timeStep, this::TimerPerformed);
         lightsTimer = new Timer(1000, this::CountdownPerformed);
         lightsTimer.start();
+
+        SocketSender.SendOwnKart();
     }
 
+    /**
+     * Method called by socket for starting the game
+     */
     public void Start()
     {
         StartGame();
         repaint();
     }
 
+    public void addKarts()
+    {
+        //Create the karts, First creates the AI karts in green, then player 2 in blue, then player 1 in red
+        racers = new Kart[numberRacers];
+        for (int i = numberRacers - numberAI; i < racers.length; i++)
+        {
+            racers[i] = new Kart("Green", startPos, 550);
+            startPos -= 60; //Moves start position of the kart along so they don't start in the same place
+        }
+        for (int i = 1; i < numberRacers - numberAI; i++)
+        {
+            //Multiple player 2 karts are possible but only 1 will be human drivable currently
+            //made purposely so can be scaled with blue karts being human driven karts
+            racers[i] = new Kart("Blue", startPos, 550);
+            startPos -= 60;
+        }
+        racers[0] = new Kart("Red", startPos, 550); //User kart
+    }
+
+    /**
+     * Method for handling game over from crashing with another kart
+     */
     public void Crashed()
     {
         updateTimer.stop();
         paused = true;
     }
+
+    /**
+     * Method called when a player has won the game
+     */
     public void Win()
     {
         updateTimer.stop();
@@ -256,16 +318,18 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
 
     public void keyTyped(KeyEvent e)
     {
-
+        //needed for key listener
     }
 
     public void keyPressed(KeyEvent e)
     {
+        //Ignore key presses when the game hasn't started
         if (!started)
         {
             return;
         }
 
+        //controls for when not paused and playing the game
         if (!paused)
         {
             switch (e.getKeyCode())
@@ -289,7 +353,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
                     }
                     break;
                 case KeyEvent.VK_D:
-                    if (multi)
+                    if (multi) //if playing local multiplayer and not single-player, let player 2 control second kart
                     {
                         racers[1].setInput(1);
                     }
@@ -319,58 +383,64 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
 
     public void keyReleased(KeyEvent e)
     {
-
+        //needed for key listener
     }
 
     public void CountdownPerformed(ActionEvent e)
     {
         if (started)
         {
+            //Stop lights timer from ticking
             lightsTimer.stop();
-            countdown = false;
+            countdown = false; //set to false so the go lights stop being drawn
         }
         else if (lights[4])
         {
+            //Starts the game running
             started = true;
             updateTimer.start();
         }
         else
         {
+            //Update which light is on
             lights[downCount] = true;
             downCount++;
         }
         repaint();
     }
 
+    /**
+     * Method called when the game update timer ticks
+     * @param e
+     */
     public void TimerPerformed(ActionEvent e)
     {
+        //iterate through the AI players and get the AI to update their input
         for (int i = numberRacers - numberAI; i < racers.length; i++)
         {
             racers[i].AI(timeStep);
         }
+
+        //go through the karts and update their position
         for (Kart racer : racers)
         {
             if (racer.UpdateKart())
             {
-                if (online)
-                {
-                    SocketSender.SendMessage("win");
-                }
                 Win();
             }
         }
+
+        //compare kart positions to see if they have collided with each other
         for (int i = 0; i < numberRacers; i++)
         {
             for (int j = 0; j < numberRacers; j++)
             {
-                if (i != j)
+                if (i != j) //as long as the two karts selected isn't the same kart
                 {
+                    //take the 2 kart positions and take one from the other, then absolute the value to get it positive,
+                    //then see if it's below a set variable to see if the karts are too close to each other
                     if (Math.abs(racers[i].kartPosition[0] - racers[j].kartPosition[0]) < 20 && Math.abs(racers[i].kartPosition[1] - racers[j].kartPosition[1]) < 20)
                     {
-                        if (online)
-                        {
-                            SocketSender.SendMessage("collision");
-                        }
                         Crashed();
                     }
                 }
@@ -380,82 +450,98 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         {
             //update kart to server
         }
+
+        SocketSender.SendOwnKart();
+
         repaint();
     }
 
     public void actionPerformed(ActionEvent e)
     {
         //can't use switch with e.getSource() apparently, so if else it is!
-        if (e.getSource() == singleButton)
+        if (e.getSource() == singleButton) //Sets up single-player
         {
             outOfMenu = true;
             numberAI = 3;
             multi = false;
+            addKarts();
 
             CloseMenu();
             InitialisePause();
             StartGame();
             repaint();
         }
-        else if(e.getSource() == multiButton)
+        else if(e.getSource() == multiButton) //sets up multiplayer
         {
             outOfMenu = true;
+            addKarts();
 
             CloseMenu();
             InitialisePause();
             StartGame();
             repaint();
         }
-        else if(e.getSource() == onlineButton)
+        else if(e.getSource() == onlineButton) //opens online menu
         {
             CloseMenu();
             OpenOnline();
         }
-        else if(e.getSource() == backButton)
+        else if(e.getSource() == backButton) //opens main menu
         {
             CloseOnline();
             OpenMenu();
         }
-        else if(e.getSource() == connectButton)
+        else if(e.getSource() == connectButton) //connect to the server specified
         {
             outOfMenu = true;
             numberRacers = 2;
             numberAI = 0;
             multi = false;
             online = true;
+            addKarts();
 
             CloseOnline();
             InitialisePause();
 
+            repaint();
+
             SocketSender sender = new SocketSender();
-            SocketSender.displayPanel = this;
             Thread t = new Thread(sender);
+            SocketSender.displayPanel = this;
             t.start();
         }
-        else if(e.getSource() == resumeButton)
+        else if(e.getSource() == resumeButton) //closes the pause menu
         {
             ClosePause();
         }
-        else if(e.getSource() == exitButton)
+        else if(e.getSource() == exitButton) //exit the program
         {
             SocketSender.SendMessage("CLOSE");
             CloseClient();
         }
     }
 
+    /**
+     * Method for closing the client
+     */
     public void CloseClient()
     {
-        try
+        if (outOfMenu) //has to be out of menu otherwise tracks.json = null
         {
-            Path trackPath = Path.of("resources/tracks.json");
-            GsonBuilder builder = new GsonBuilder();
-            Gson gson = builder.create();
-            String circuits = gson.toJson(TrackHandler.circuits);
-            Files.writeString(trackPath, circuits);
-        }
-        catch (Exception ee)
-        {
-            System.err.println(ee);
+            try
+            {
+                //hope this works in the .jar, had to get rid of other path because they weren't working
+                //try saving the tracks as a JSON in resources folder
+                Path trackPath = Path.of("resources/tracks.json");
+                GsonBuilder builder = new GsonBuilder();
+                Gson gson = builder.create();
+                String circuits = gson.toJson(TrackHandler.circuits);
+                Files.writeString(trackPath, circuits);
+            }
+            catch (Exception ee)
+            {
+                System.out.println(ee.toString());
+            }
         }
         System.exit(0);
     }
@@ -465,8 +551,10 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         //display image
         super.paintComponent(g);
 
-        if(outOfMenu)
+        if (outOfMenu) //when playing the game
         {
+            //Code from part 2 of the assignment
+            //draws the track to be raced on
             g.setColor(Color.green);
             g.fillRect(0, 0, 850, 650);
 
@@ -490,29 +578,33 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
             g.setColor(c4);
             g.drawLine(425, 500, 425, 600); // start line
 
+            //draws all the karts
             for (Kart racer : racers)
             {
                 racer.PaintKart(this, g);
             }
 
+            //draws the start countdown lights
             if (countdown)
             {
+                //draw the background for the lights
                 g.setColor(Color.darkGray);
                 g.fillRect(lightsPosition[0], lightsPosition[1], 250, 50);
 
+                //variables for positioning the lights
                 int lightPosX = lightsPosition[0] + 10;
                 int lightPosY = lightsPosition[1] + 10;
 
-                if (!started)
+                if (!started) //before game start
                 {
                     for (boolean light : lights)
                     {
-                        if (light)
+                        if (light) //light turned on
                         {
                             g.setColor(Color.red);
                             g.fillOval(lightPosX, lightPosY, 30, 30);
                         }
-                        else
+                        else //light is off
                         {
                             g.setColor(Color.gray);
                             g.fillOval(lightPosX, lightPosY, 30, 30);
@@ -520,12 +612,12 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
                         lightPosX += 50;
                     }
                 }
-                else
+                else //once games starts lights turn green
                 {
-                    for (boolean light : lights)
+                    for (boolean light : lights) //stop telling me I don't use light, I know!
                     {
                         g.setColor(Color.green);
-                        g.fillOval(lightPosX, lightPosY, 30, 30);
+                        g.fillOval(lightPosX, 335, 30, 30);
                         lightPosX += 50;
                     }
                 }

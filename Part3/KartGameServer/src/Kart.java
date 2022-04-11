@@ -1,10 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class Kart
+public class Kart implements Serializable
 {
     //kart set variables
     private final int kartFrames = 16;
@@ -16,7 +17,7 @@ public class Kart
     protected ImageIcon[] kartImage;
     private int kartLeft = kartFrames - 1;
 
-    //kart related changeable variables
+    //kart related variables
     private final double speedFactor = 0.2; //Needs to be moved to other class at some point so can be used globally
     private int kartAcceleration = 10;
 
@@ -130,72 +131,6 @@ public class Kart
     }
 
     /**
-     * Old collision detection, doesn't allow scalability of the code, new method in track handler
-     */
-    private void EvaluateCollisions()
-    {
-        if (760 < kartPosition[0] || kartPosition[0] < 40)
-        {
-            kartSpeed = 0;
-            kartPosition[0] = Math.max(40, Math.min(760, kartPosition[0]));
-        }
-        if (560 < kartPosition[1] || kartPosition[1] < 90)
-        {
-            kartSpeed = 0;
-            kartPosition[1] = Math.max(90, Math.min(560, kartPosition[1]));
-        }
-
-        if (490 <= prevKartPos[1] && prevKartPos[1] <= 560)
-        {
-            if (prevKartPos[0] <= 425 && kartPosition[0] > 425)
-            {
-                kartLapCount += 1;
-                System.out.println(kartLapCount);
-            }
-            else if (prevKartPos[0] >= 425 && kartPosition[0] < 425)
-            {
-                kartLapCount -= 1;
-                System.out.println(kartLapCount);
-            }
-            if (!(490 <= kartPosition[1] && kartPosition[1] <= 560) && 110 < kartPosition[0] && kartPosition[0] < 690)
-            {
-                kartSpeed = 0;
-                kartPosition[1] = Math.max(490, kartPosition[1]);
-            }
-        }
-        else if (690 <= prevKartPos[0] && prevKartPos[0] <= 760)
-        {
-            if (!(690 <= kartPosition[0]) && 160 < kartPosition[1] && kartPosition[1] < 490)
-            {
-                kartSpeed = 0;
-                kartPosition[0] = 690;
-            }
-        }
-        else if (90 <= prevKartPos[1] && prevKartPos[1] <= 160)
-        {
-            if(!(kartPosition[1] <= 160) && 110 < kartPosition[0] && kartPosition[0] < 690)
-            {
-                kartSpeed = 0;
-                kartPosition[1] = 160;
-            }
-        }
-        else if (40 <= prevKartPos[0] && prevKartPos[0] <= 110)
-        {
-            if (!(kartPosition[0] <= 110) && 160 < kartPosition[1] && kartPosition[1] < 490)
-            {
-                kartSpeed = 0;
-                kartPosition[0] = 110;
-            }
-        }
-        else
-        {
-            System.out.println("that's an error");
-        }
-        prevKartPos[0] = kartPosition[0];
-        prevKartPos[1] = kartPosition[1];
-    }
-
-    /**
      * basic ai for ai karts
      * @param timeStep how much time has passed since last update
      */
@@ -209,9 +144,9 @@ public class Kart
             return;
         }
 
-        int heading = TrackHandler.getAIHeading(this);
+        //int heading = TrackHandler.getAIHeading(this);
 
-        if (kartAngle == heading) //go up to AI speed if going in the right direction
+        /*if (kartAngle == heading) //go up to AI speed if going in the right direction
         {
             kartSpeed = Math.min(kartSpeed + kartAcceleration, AISpeed);
         }
@@ -219,7 +154,7 @@ public class Kart
         {
             AIDelay = 0;
             kartAngle = (kartAngle + kartLeft) % kartFrames;
-        }
+        }*/
     }
 
     /**
@@ -230,14 +165,14 @@ public class Kart
     {
         UpdatePosition();
         //EvaluateCollisions();
-        TrackHandler.CheckCollision(this);
-        boolean win = TrackHandler.CheckWin(this);
+        //TrackHandler.CheckCollision(this);
+        //boolean win = TrackHandler.CheckWin(this);
 
         //set current position to previous position
         prevKartPos[0] = kartPosition[0];
         prevKartPos[1] = kartPosition[1];
 
-        return win;
+        return false;
     }
 
     /**

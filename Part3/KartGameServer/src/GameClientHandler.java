@@ -9,6 +9,14 @@ public class GameClientHandler implements Runnable
     private String line;
     private DataOutputStream outputStream;
 
+    private ObjectOutput objectOutput = null;
+    private ObjectInput objectInput = null;
+
+    private static Kart p1Kart = null;
+    private static Kart p2Kart = null;
+
+    private String player;
+
     private boolean alive = true;
 
     GameClientHandler(Socket socketServer)
@@ -27,6 +35,8 @@ public class GameClientHandler implements Runnable
         {
             inputStream = new BufferedReader(new InputStreamReader(server.getInputStream()));
             outputStream = new DataOutputStream(server.getOutputStream());
+            objectInput = new ObjectInputStream(server.getInputStream());
+            objectOutput = new ObjectOutputStream(server.getOutputStream());
 
             while (true)
             {
@@ -54,14 +64,85 @@ public class GameClientHandler implements Runnable
 
             outputStream.close();
             inputStream.close();
+            objectOutput.close();
+            objectInput.close();
             server.close();
+        }
+        catch (Exception e)
+        {
+            System.err.println(e);
+        }
+
+        alive = false;
+    }
+
+
+    public void SendMessage(String message)
+    {
+        try
+        {
+            outputStream.writeBytes(message + "\n");
         }
         catch (Exception e)
         {
 
         }
+    }
 
-        alive = false;
+    private void SendKart()
+    {
+
+    }
+
+    private void SendOtherKart()
+    {
+        SendMessage("other_kart");
+
+        Kart send = null;
+
+        switch (player)
+        {
+            case "p1":
+                send = p2Kart;
+                break;
+            case "p2":
+                send = p1Kart;
+                break;
+        }
+
+        try
+        {
+            objectOutput.writeObject(send);
+            objectOutput.flush();
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+
+
+    private void ReceiveKart()
+    {
+        Kart input = null;
+
+        try
+        {
+            input = (Kart) objectInput.readObject();
+            switch (player)
+            {
+                case "p1":
+                    p1Kart = input;
+                    break;
+                case "p2":
+                    p2Kart = input;
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+
+        }
     }
 
     private String ReceiveMessage()
@@ -76,29 +157,12 @@ public class GameClientHandler implements Runnable
         }
     }
 
-    public void SendMessage(String message)
-    {
-        try
-        {
-            outputStream.writeBytes(message + "\n");
-        }
-        catch (Exception e)
-        {
-
-        }
-    }
-
-    private void ReceiveKart()
-    {
-
-    }
-
     private void HandleClientResponse(String response)
     {
-        String[] responseParts = response.split(" ");
+        //String[] responseParts = response.split(" ");
         System.out.println(response);
 
-        switch (responseParts[0])
+        switch (response)
         {
             case "ping":
                 try
@@ -117,12 +181,14 @@ public class GameClientHandler implements Runnable
                 //Return player number
                 if (ServerHandler.player == 0)
                 {
-                    SendMessage("p1");
+                    player = "p1";
+                    SendMessage(player);
                     ServerHandler.player++;
                 }
                 else if (ServerHandler.player == 1)
                 {
-                    SendMessage("p2");
+                    player = "p2";
+                    SendMessage(player);
                     ServerHandler.player++;
                 }
                 else
@@ -133,13 +199,20 @@ public class GameClientHandler implements Runnable
                 break;
             case "start":
                 ServerHandler.StartGame();
+
+                break;
+            case "kart":
+                ReceiveKart();
+
                 break;
             case "update_kart":
-                // update position of player kart
                 ReceiveKart();
+                SendOtherKart();
+
                 break;
             case "collision":
                 ServerHandler.Collision();
+
                 break;
             case "win":
                 //send win to clients

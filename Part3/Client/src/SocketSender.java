@@ -7,9 +7,15 @@ public class SocketSender implements Runnable
     private static DataOutputStream outputStream = null;
     private static BufferedReader inputStream = null;
     private static String responseLine;
+    private static ObjectOutput objectOutput = null;
+    private static ObjectInput objectInput = null;
+
     public static DisplayPanel displayPanel = null;
 
     private static String serverHost = "localhost";
+
+    private static int ownKart;
+    private static int otherKart;
 
     public void run()
     {
@@ -20,6 +26,9 @@ public class SocketSender implements Runnable
             clientSocket = new Socket(serverHost, serverPort);
             outputStream = new DataOutputStream(clientSocket.getOutputStream());
             inputStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            objectInput = new ObjectInputStream(clientSocket.getInputStream());
+            objectOutput = new ObjectOutputStream(clientSocket.getOutputStream());
+
         }
         catch (UnknownHostException e)
         {
@@ -30,7 +39,7 @@ public class SocketSender implements Runnable
             System.err.println("IO Exception: " + e);
         }
 
-        if (clientSocket != null && outputStream != null && inputStream != null)
+        if (clientSocket != null && outputStream != null && inputStream != null && objectOutput != null && objectInput != null)
         {
             try
             {
@@ -52,6 +61,8 @@ public class SocketSender implements Runnable
 
                 outputStream.close();
                 inputStream.close();
+                objectOutput.close();
+                objectInput.close();
                 clientSocket.close();
 
                 displayPanel.CloseClient();
@@ -65,6 +76,10 @@ public class SocketSender implements Runnable
                 System.err.println("IO Exception: " + e);
             }
         }
+        else
+        {
+            System.err.println("null error");
+        }
     }
 
     private static void Initialise()
@@ -77,19 +92,34 @@ public class SocketSender implements Runnable
 
     public static void SendOwnKart()
     {
-        SendMessage("update_kart ");
+        SendMessage("update_kart");
         SendKart();
         ReceiveOtherPlayers();
     }
 
     private static void SendKart()
     {
+        try
+        {
+            objectOutput.writeObject(displayPanel.racers[displayPanel.player]);
+            objectOutput.flush();
+        }
+        catch (Exception e)
+        {
 
+        }
     }
 
     private static void ReceiveOtherPlayers()
     {
+        try
+        {
+            displayPanel.racers[otherKart] = (Kart) objectInput.readObject();
+        }
+        catch (Exception e)
+        {
 
+        }
     }
 
     public static void SendMessage(String message)
@@ -100,7 +130,7 @@ public class SocketSender implements Runnable
         }
         catch (Exception e)
         {
-
+            System.err.println(e);
         }
     }
 
@@ -135,16 +165,29 @@ public class SocketSender implements Runnable
                 SendMessage("ping");
 
                 break;
-            case "p2":
+            case "p1":
                 displayPanel.player = 0;
+                ownKart = 0;
+                otherKart = 1;
+                System.out.println(response);
+
+                SendMessage("kart");
+                SendKart();
+
                 displayPanel.repaint();
                 displayPanel.waitingLabel.setVisible(true);
                 displayPanel.exitButton.setBounds(250, 375, 350, 75);
                 displayPanel.exitButton.setEnabled(true);
                 displayPanel.exitButton.setVisible(true);
                 break;
-            case "p1":
+            case "p2":
                 displayPanel.player = 1;
+                ownKart = 1;
+                otherKart = 0;
+
+                SendMessage("kart");
+                SendKart();
+
                 displayPanel.repaint();
                 displayPanel.waitingLabel.setVisible(false);
                 displayPanel.exitButton.setEnabled(false);
@@ -160,6 +203,11 @@ public class SocketSender implements Runnable
             case "collision":
                 displayPanel.Crashed();
                 break;
+            case "other_kart":
+                ReceiveOtherPlayers();
+
+                break;
+
         }
     }
 
