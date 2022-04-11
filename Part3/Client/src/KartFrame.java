@@ -19,7 +19,7 @@ public class KartFrame extends JFrame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //IMPORTANT!!!
 
         //add panel and keyListener to frame
-        DisplayPanel dp = new DisplayPanel();
+        DisplayPanel dp = new DisplayPanel(this);
         add(dp);
         addKeyListener(dp);
 

@@ -144,7 +144,7 @@ public class Kart implements Serializable
             return;
         }
 
-        int heading = TrackHandler.getAIHeading(this);
+        int heading = TrackHandler.GetAIHeading(this);
 
         if (kartAngle == heading) //go up to AI speed if going in the right direction
         {

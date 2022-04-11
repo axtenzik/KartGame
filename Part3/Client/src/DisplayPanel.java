@@ -14,12 +14,14 @@ import com.google.gson.GsonBuilder;
 public class DisplayPanel extends JPanel implements KeyListener, ActionListener
 {
     //Swing stuff
+    private KartFrame kf;
     private Timer updateTimer;
     private Timer lightsTimer;
     private JButton resumeButton;
     public JButton exitButton;
     private JButton singleButton;
     private JButton multiButton;
+    private JButton multiSecondButton;
     private JButton onlineButton;
     public JTextField ipBox;
     public JTextField portBox;
@@ -32,7 +34,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
 
     //game running stuff
     public Kart[] racers;
-    public int player = 0;
+    public static int player = 0;
     private boolean paused = false;
     private boolean countdown = true;
     private boolean started = false;
@@ -40,15 +42,16 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
     private boolean online = false;
     private int downCount = 0;
     private final boolean[] lights = {false, false, false, false, false};
-    private final int[] lightsPosition = {300, 325};
+    //private final int[] lightsPosition = {300, 325};
     private final int[] displaySize = {850, 650};
     private int numberRacers = 4;
     private int numberAI = numberRacers - 2;
     private final int timeStep = 20;
-    private int startPos = 375;
+    private int startPos = 0;
 
-    DisplayPanel()
+    DisplayPanel(KartFrame kFrame)
     {
+        kf = kFrame;
         setPreferredSize(new Dimension(displaySize[0], displaySize[1]));
         this.setLayout(null);
 
@@ -58,7 +61,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         //gets changed later, but need to make at least one due to waiting for other players on the online
         //it pains the track and needs to paint a kart
         racers = new Kart[1];
-        racers[0] = new Kart("Red", startPos, 550); //User kart
+        racers[0] = new Kart("Red", 300, 300); //User kart
     }
 
     /**
@@ -81,6 +84,14 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         multiButton.setEnabled(true);
         multiButton.setFocusable(false);
         add(multiButton);
+
+        multiSecondButton = new JButton("1V1");
+        multiSecondButton.setBounds(600, 325, 100, 75);
+        multiSecondButton.addActionListener(this);
+        multiSecondButton.setVisible(true);
+        multiSecondButton.setEnabled(true);
+        multiSecondButton.setFocusable(false);
+        add(multiSecondButton);
 
         onlineButton = new JButton("Online play");
         onlineButton.setBounds(300, 425, 250, 75);
@@ -143,6 +154,8 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         singleButton.setEnabled(true);
         multiButton.setVisible(true);
         multiButton.setEnabled(true);
+        multiSecondButton.setVisible(true);
+        multiSecondButton.setEnabled(true);
         onlineButton.setVisible(true);
         onlineButton.setEnabled(true);
         exitButton.setVisible(true);
@@ -158,6 +171,8 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         singleButton.setEnabled(false);
         multiButton.setVisible(false);
         multiButton.setEnabled(false);
+        multiSecondButton.setVisible(false);
+        multiSecondButton.setEnabled(false);
         onlineButton.setVisible(false);
         onlineButton.setEnabled(false);
         exitButton.setVisible(false);
@@ -264,7 +279,10 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         lightsTimer = new Timer(1000, this::CountdownPerformed);
         lightsTimer.start();
 
-        SocketSender.SendOwnKart();
+        if (online)
+        {
+            SocketSender.SendOwnKart();
+        }
     }
 
     /**
@@ -282,17 +300,17 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         racers = new Kart[numberRacers];
         for (int i = numberRacers - numberAI; i < racers.length; i++)
         {
-            racers[i] = new Kart("Green", startPos, 550);
+            racers[i] = new Kart("Green", TrackHandler.GetStartLineX() + startPos, TrackHandler.GetStartLineY());
             startPos -= 60; //Moves start position of the kart along so they don't start in the same place
         }
         for (int i = 1; i < numberRacers - numberAI; i++)
         {
             //Multiple player 2 karts are possible but only 1 will be human drivable currently
             //made purposely so can be scaled with blue karts being human driven karts
-            racers[i] = new Kart("Blue", startPos, 550);
+            racers[i] = new Kart("Blue", TrackHandler.GetStartLineX() + startPos, TrackHandler.GetStartLineY());
             startPos -= 60;
         }
-        racers[0] = new Kart("Red", startPos, 550); //User kart
+        racers[0] = new Kart("Red", TrackHandler.GetStartLineX() + startPos, TrackHandler.GetStartLineY()); //User kart
     }
 
     /**
@@ -438,7 +456,10 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
                     //then see if it's below a set variable to see if the karts are too close to each other
                     if (Math.abs(racers[i].kartPosition[0] - racers[j].kartPosition[0]) < 20 && Math.abs(racers[i].kartPosition[1] - racers[j].kartPosition[1]) < 20)
                     {
-                        SocketSender.SendMessage("collision");
+                        if (online)
+                        {
+                            SocketSender.SendMessage("collision");
+                        }
                         Crashed();
                     }
                 }
@@ -460,8 +481,8 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
             outOfMenu = true;
             numberAI = 3;
             multi = false;
-            addKarts();
             TrackHandler.LoadTracks(0);
+            addKarts();
 
             CloseMenu();
             InitialisePause();
@@ -471,8 +492,25 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         else if(e.getSource() == multiButton) //sets up multiplayer
         {
             outOfMenu = true;
-            addKarts();
+            //TrackHandler.LoadTracks(0);
             TrackHandler.LoadTracks(0);
+            addKarts();
+
+            CloseMenu();
+            InitialisePause();
+            StartGame();
+            repaint();
+        }
+        else if(e.getSource() == multiSecondButton) //sets up multiplayer
+        {
+            outOfMenu = true;
+            numberRacers = 2;
+            numberAI = 0;
+            //TrackHandler.LoadTracks(0);
+            TrackHandler.LoadTracks(1);
+            addKarts();
+            setPreferredSize(new Dimension(TrackHandler.GetSizeX(), TrackHandler.GetSizeY()));
+            kf.pack();
 
             CloseMenu();
             InitialisePause();
@@ -496,8 +534,8 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
             numberAI = 0;
             multi = false;
             online = true;
-            addKarts();
             TrackHandler.LoadTracks(0);
+            addKarts();
 
             CloseOnline();
             InitialisePause();
@@ -515,7 +553,10 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         }
         else if(e.getSource() == exitButton) //exit the program
         {
-            SocketSender.SendMessage("CLOSE");
+            if (online)
+            {
+                SocketSender.SendMessage("CLOSE");
+            }
             CloseClient();
         }
     }
@@ -565,11 +606,11 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
             {
                 //draw the background for the lights
                 g.setColor(Color.darkGray);
-                g.fillRect(lightsPosition[0], lightsPosition[1], 250, 50);
+                g.fillRect(TrackHandler.GetLightX(), TrackHandler.GetLightY(), 250, 50);
 
                 //variables for positioning the lights
-                int lightPosX = lightsPosition[0] + 10;
-                int lightPosY = lightsPosition[1] + 10;
+                int lightPosX = TrackHandler.GetLightX() + 10;
+                int lightPosY = TrackHandler.GetLightY() + 10;
 
                 if (!started) //before game start
                 {

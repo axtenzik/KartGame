@@ -1,1 +1,204 @@
-{"tracks":[{"trackName":"Track1","trackSize":[850,650],"totalLaps":5,"startFinish":425,"finishDirection":1,"lightsPosition":[300,325],"rectangles":[{"boundsX":[150,700],"boundsY":[500,600],"forward":4,"walls":[true,false,true,false]},{"boundsX":[700,800],"boundsY":[500,600],"forward":0,"walls":[false,true,true,false]},{"boundsX":[700,800],"boundsY":[200,500],"forward":0,"walls":[false,true,false,true]},{"boundsX":[700,800],"boundsY":[100,200],"forward":12,"walls":[true,true,false,false]},{"boundsX":[150,700],"boundsY":[100,200],"forward":12,"walls":[true,false,true,false]},{"boundsX":[50,150],"boundsY":[100,200],"forward":8,"walls":[true,false,false,true]},{"boundsX":[50,150],"boundsY":[200,500],"forward":8,"walls":[false,true,false,true]},{"boundsX":[50,150],"boundsY":[500,600],"forward":4,"walls":[false,false,true,true]}]}]}
+{
+    "tracks":[
+        {
+            "trackName":"Track1",
+            "trackSize":[850,650],
+            "totalLaps":5,
+            "startFinish":425,
+            "finishDirection":1,
+            "lightsPosition":[300,325],
+            "rectangles":[
+                {
+                    "boundsX":[150,700],
+                    "boundsY":[500,600],
+                    "forward":4,
+                    "walls":[true,false,true,false]
+                },
+                {
+                    "boundsX":[700,800],
+                    "boundsY":[500,600],
+                    "forward":0,
+                    "walls":[false,true,true,false]
+                },
+                {
+                    "boundsX":[700,800],
+                    "boundsY":[200,500],
+                    "forward":0,
+                    "walls":[false,true,false,true]
+                },
+                {
+                    "boundsX":[700,800],
+                    "boundsY":[100,200],
+                    "forward":12,
+                    "walls":[true,true,false,false]
+                },
+                {
+                    "boundsX":[150,700],
+                    "boundsY":[100,200],
+                    "forward":12,
+                    "walls":[true,false,true,false]
+                },
+                {
+                    "boundsX":[50,150],
+                    "boundsY":[100,200],
+                    "forward":8,
+                    "walls":[true,false,false,true]
+                },
+                {
+                    "boundsX":[50,150],
+                    "boundsY":[200,500],
+                    "forward":8,
+                    "walls":[false,true,false,true]
+                },
+                {
+                    "boundsX":[50,150],
+                    "boundsY":[500,600],
+                    "forward":4,
+                    "walls":[false,false,true,true]
+                }
+            ]
+        },
+        {
+            "trackName":"Track2",
+            "trackSize":[1000,800],
+            "totalLaps":4,
+            "startFinish":600,
+            "finishDirection":1,
+            "lightsPosition":[300,325],
+          "rectangles": [
+            {
+              "boundsX": [ 100, 800 ],
+              "boundsY": [ 700, 800 ],
+              "forward": 4,
+              "walls": [ true, false, true, false ]
+            },
+            {
+              "boundsX": [ 800, 900 ],
+              "boundsY": [ 700, 800 ],
+              "forward": 0,
+              "walls": [ false, true, true, false ]
+            },
+            {
+              "boundsX": [ 800, 900 ],
+              "boundsY": [ 500, 700 ],
+              "forward": 0,
+              "walls": [ false, true, false, true ]
+            },
+            {
+              "boundsX": [ 800, 900 ],
+              "boundsY": [ 400, 500 ],
+              "forward": 4,
+              "walls": [ true, false, false, false ]
+            },
+            {
+              "boundsX": [ 900, 1000 ],
+              "boundsY": [ 400, 500 ],
+              "forward": 0,
+              "walls": [ false, true, true, false ]
+            },
+            {
+              "boundsX": [ 900, 1000 ],
+              "boundsY": [ 200, 400 ],
+              "forward": 0,
+              "walls": [ false, true, false, true ]
+            },
+            {
+              "boundsX": [ 900, 1000 ],
+              "boundsY": [ 100, 200 ],
+              "forward": 12,
+              "walls": [ true, true, false, false ]
+            },
+            {
+              "boundsX": [ 400, 900 ],
+              "boundsY": [ 100, 200 ],
+              "forward": 12,
+              "walls": [ true, false, true, false ]
+            },
+            {
+              "boundsX": [ 700, 800 ],
+              "boundsY": [ 400, 500 ],
+              "forward": 0,
+              "walls": [ false, false, true, true ]
+            },
+            {
+              "boundsX": [ 700, 800 ],
+              "boundsY": [ 300, 400 ],
+              "forward": 12,
+              "walls": [ true, true, false, false ]
+            },
+            {
+              "boundsX": [ 600, 700 ],
+              "boundsY": [ 300, 400 ],
+              "forward": 12,
+              "walls": [ true, false, true, false ]
+            },
+            {
+              "boundsX": [ 500, 600 ],
+              "boundsY": [ 300, 400 ],
+              "forward": 8,
+              "walls": [ true, false, false, true ]
+            },
+            {
+              "boundsX": [ 500, 600 ],
+              "boundsY": [ 400, 500 ],
+              "forward": 12,
+              "walls": [ false, true, true, false ]
+            },
+            {
+              "boundsX": [ 400, 500 ],
+              "boundsY": [ 400, 500 ],
+              "forward": 12,
+              "walls": [ true, false, true, false ]
+            },
+            {
+              "boundsX": [ 300, 400 ],
+              "boundsY": [ 400, 500 ],
+              "forward": 0,
+              "walls": [ false, false, true, true ]
+            },
+            {
+              "boundsX": [ 300, 400 ],
+              "boundsY": [ 200, 400 ],
+              "forward": 0,
+              "walls": [ false, true, false, true ]
+            },
+            {
+              "boundsX": [ 300, 400 ],
+              "boundsY": [ 100, 200 ],
+              "forward": 0,
+              "walls": [ false, false, false, true ]
+            },
+            {
+              "boundsX": [ 300, 400 ],
+              "boundsY": [ 0, 100 ],
+              "forward": 12,
+              "walls": [ true, true, false, false ]
+            },
+            {
+              "boundsX": [ 100, 300 ],
+              "boundsY": [ 0, 100 ],
+              "forward": 12,
+              "walls": [ true, false, true, false ]
+            },
+            {
+              "boundsX": [ 0, 100 ],
+              "boundsY": [ 0, 100 ],
+              "forward": 8,
+              "walls": [ true, false, false, true ]
+            },
+            {
+              "boundsX": [ 0, 100 ],
+              "boundsY": [ 100, 700 ],
+              "forward": 8,
+              "walls": [ false, true, false, true ]
+            },
+            {
+              "boundsX": [ 0, 100 ],
+              "boundsY": [ 700, 800 ],
+              "forward": 4,
+              "walls": [ false, false, true, true ]
+            }
+          ]
+        }
+    ]
+}

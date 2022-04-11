@@ -9,7 +9,7 @@ public class TrackHandler
 {
     public static Circuits circuits;
     private static int boundaryOffset = 10; // set to 0 for no clipping issue, at 0 half the kart can go off the track though
-    private static int selectedTrack = 0;
+    private static int selectedTrack = 1;
 
     /**
      * method for loading the track data
@@ -20,12 +20,12 @@ public class TrackHandler
 
         try
         {
-            /*Path trackPath = Path.of("resources/tracks.json"); //doesn't like working in .jar
-            String trackString = Files.readString(trackPath);*/
+            Path trackPath = Path.of("resources/tracks.json"); //doesn't like working in .jar
+            String trackString = Files.readString(trackPath);
             GsonBuilder builder = new GsonBuilder();
             Gson gson = builder.create();
 
-            String trackString = TrackHandler.class.getResource("tracks.json").getPath(); //works with .jar
+            //String trackString = TrackHandler.class.getResource("tracks.json").getPath(); //works with .jar
             circuits = gson.fromJson(trackString, Circuits.class);
         }
         catch (Exception e)
@@ -39,12 +39,46 @@ public class TrackHandler
         }
     }
 
+    public static int GetLightX()
+    {
+        return circuits.tracks.get(selectedTrack).lightsPosition[0];
+    }
+
+    public static int GetLightY()
+    {
+        return circuits.tracks.get(selectedTrack).lightsPosition[1];
+    }
+
+    public static int GetSizeX()
+    {
+        //Hard coded for now
+        return circuits.tracks.get(selectedTrack).trackSize[0];
+    }
+
+    public static int GetSizeY()
+    {
+        //Hard coded for now
+        return circuits.tracks.get(selectedTrack).trackSize[1];
+    }
+
+    public static int GetStartLineX()
+    {
+        //Hard coded for now
+        return circuits.tracks.get(selectedTrack).startFinish;
+    }
+
+    public static int GetStartLineY()
+    {
+        //Hard codoed for now
+        return (circuits.tracks.get(selectedTrack).rectangles.get(0).boundsY[1] + circuits.tracks.get(selectedTrack).rectangles.get(0).boundsY[0]) / 2;
+    }
+
     /**
      * Method for getting the forward direction for that part of the track
      * @param kart the kart wth the ai on
      * @return direction ai needs to head in
      */
-    public static int getAIHeading(Kart kart)
+    public static int GetAIHeading(Kart kart)
     {
         for (TrackRectangles rectangles : circuits.tracks.get(selectedTrack).rectangles)
         {
@@ -181,14 +215,14 @@ public class TrackHandler
     public static void PaintTrack(Graphics g)
     {
         g.setColor(Color.green);
-        g.fillRect(0, 0, circuits.tracks.get(selectedTrack).trackSize[0], circuits.tracks.get(selectedTrack).trackSize[0]);
+        g.fillRect(0, 0, circuits.tracks.get(selectedTrack).trackSize[0], circuits.tracks.get(selectedTrack).trackSize[1]);
 
         for (TrackRectangles rectangles : circuits.tracks.get(selectedTrack).rectangles)
         {
             g.setColor(Color.gray);
             g.fillRect(rectangles.boundsX[0], rectangles.boundsY[0], rectangles.boundsX[1] - rectangles.boundsX[0], rectangles.boundsY[1] - rectangles.boundsY[0]);
 
-            int rectCentre[] = new int[2];
+            int[] rectCentre = new int[2];
             rectCentre[0] = (rectangles.boundsX[1] + rectangles.boundsX[0]) / 2;
             rectCentre[1] = (rectangles.boundsY[1] + rectangles.boundsY[0]) / 2;
 
