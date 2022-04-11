@@ -7,7 +7,7 @@ import com.google.gson.GsonBuilder;
 public class TrackHandler
 {
     public static Circuits circuits;
-    private static int boundaryOffset = 0; // set to 0 for no clipping issue, at 0 half the kart can go off the track though
+    private static int boundaryOffset = 10; // at 0 half the kart can go off the track
 
     /**
      * method for loading the track data

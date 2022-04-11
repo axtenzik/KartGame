@@ -7,15 +7,13 @@ public class SocketSender implements Runnable
     private static DataOutputStream outputStream = null;
     private static BufferedReader inputStream = null;
     private static String responseLine;
-    private static ObjectOutput objectOutput = null;
-    private static ObjectInput objectInput = null;
 
     public static DisplayPanel displayPanel = null;
 
     private static String serverHost = "localhost";
 
-    private static int ownKart;
-    private static int otherKart;
+    private static int ownKart = 0;
+    private static int otherKart = 1;
 
     public void run()
     {
@@ -26,8 +24,6 @@ public class SocketSender implements Runnable
             clientSocket = new Socket(serverHost, serverPort);
             outputStream = new DataOutputStream(clientSocket.getOutputStream());
             inputStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            objectInput = new ObjectInputStream(clientSocket.getInputStream());
-            objectOutput = new ObjectOutputStream(clientSocket.getOutputStream());
 
         }
         catch (UnknownHostException e)
@@ -38,8 +34,12 @@ public class SocketSender implements Runnable
         {
             System.err.println("IO Exception: " + e);
         }
+        catch (Exception e)
+        {
+            System.err.println("Exception: " + e);
+        }
 
-        if (clientSocket != null && outputStream != null && inputStream != null && objectOutput != null && objectInput != null)
+        if (clientSocket != null && outputStream != null && inputStream != null)
         {
             try
             {
@@ -61,8 +61,6 @@ public class SocketSender implements Runnable
 
                 outputStream.close();
                 inputStream.close();
-                objectOutput.close();
-                objectInput.close();
                 clientSocket.close();
 
                 displayPanel.CloseClient();
@@ -85,42 +83,17 @@ public class SocketSender implements Runnable
     private static void Initialise()
     {
         SendMessage("request");
-        //SendKart();
-
-        //SendMessage("ping");
     }
 
     public static void SendOwnKart()
     {
-        SendMessage("update_kart");
-        SendKart();
-        ReceiveOtherPlayers();
+        int kartX = displayPanel.racers[ownKart].kartPosition[0];
+        int kartY = displayPanel.racers[ownKart].kartPosition[1];
+        int kartAngle = displayPanel.racers[ownKart].kartAngle;
+        int kartSpeed = displayPanel.racers[ownKart].kartSpeed;
+        SendMessage("update_kart " + kartX + " " + kartY + " " + kartAngle + " " + kartSpeed);
     }
 
-    private static void SendKart()
-    {
-        try
-        {
-            objectOutput.writeObject(displayPanel.racers[displayPanel.player]);
-            objectOutput.flush();
-        }
-        catch (Exception e)
-        {
-
-        }
-    }
-
-    private static void ReceiveOtherPlayers()
-    {
-        try
-        {
-            displayPanel.racers[otherKart] = (Kart) objectInput.readObject();
-        }
-        catch (Exception e)
-        {
-
-        }
-    }
 
     public static void SendMessage(String message)
     {
@@ -148,8 +121,8 @@ public class SocketSender implements Runnable
 
     private static void HandleServerResponse(String response)
     {
-        System.out.println(response);
-        switch (response)
+        String[] responseParts = response.split(" ");
+        switch (responseParts[0])
         {
             case "pong":
                 try
@@ -171,9 +144,6 @@ public class SocketSender implements Runnable
                 otherKart = 1;
                 System.out.println(response);
 
-                SendMessage("kart");
-                SendKart();
-
                 displayPanel.repaint();
                 displayPanel.waitingLabel.setVisible(true);
                 displayPanel.exitButton.setBounds(250, 375, 350, 75);
@@ -185,17 +155,14 @@ public class SocketSender implements Runnable
                 ownKart = 1;
                 otherKart = 0;
 
-                SendMessage("kart");
-                SendKart();
-
                 displayPanel.repaint();
-                displayPanel.waitingLabel.setVisible(false);
-                displayPanel.exitButton.setEnabled(false);
-                displayPanel.exitButton.setVisible(false);
                 SendMessage("start");
                 break;
             case "start":
                 displayPanel.Start();
+                displayPanel.waitingLabel.setVisible(false);
+                displayPanel.exitButton.setEnabled(false);
+                displayPanel.exitButton.setVisible(false);
                 break;
             case "win":
                 displayPanel.Win();
@@ -204,10 +171,14 @@ public class SocketSender implements Runnable
                 displayPanel.Crashed();
                 break;
             case "other_kart":
-                ReceiveOtherPlayers();
+                displayPanel.racers[otherKart].kartPosition[0] = Integer.parseInt(responseParts[1]);
+                displayPanel.racers[otherKart].kartPosition[1] = Integer.parseInt(responseParts[2]);
+                displayPanel.racers[otherKart].prevKartPos[0] = Integer.parseInt(responseParts[1]);
+                displayPanel.racers[otherKart].prevKartPos[1] = Integer.parseInt(responseParts[2]);
+                displayPanel.racers[otherKart].kartAngle = Integer.parseInt(responseParts[3]);
+                displayPanel.racers[otherKart].kartSpeed = Integer.parseInt(responseParts[4]);
 
                 break;
-
         }
     }
 

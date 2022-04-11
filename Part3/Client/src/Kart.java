@@ -9,11 +9,11 @@ public class Kart implements Serializable
 {
     //kart set variables
     private final int kartFrames = 16;
-    public final int[] kartPosition = {375, 500};
-    public final int[] prevKartPos = {375, 500};
+    public int[] kartPosition = {375, 500};
+    public int[] prevKartPos = {375, 500};
     public int kartLapCount = 0;
     public int kartSpeed = 0;
-    private int kartAngle = 4;
+    public int kartAngle = 4;
     protected ImageIcon[] kartImage;
     private int kartLeft = kartFrames - 1;
 

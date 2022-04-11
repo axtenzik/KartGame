@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.util.ArrayList;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,7 +46,7 @@ public class TrackHandler
      */
     public static int getAIHeading(Kart kart)
     {
-        for (TrackRectangles rectangles : circuits.tracks.get(0).rectangles)
+        for (TrackRectangles rectangles : circuits.tracks.get(selectedTrack).rectangles)
         {
             if ((rectangles.boundsX[0] <= kart.kartPosition[0] && kart.kartPosition[0] <= rectangles.boundsX[1]) && (rectangles.boundsY[0] <= kart.kartPosition[1] && kart.kartPosition[1] <= rectangles.boundsY[1]))
             {
@@ -64,14 +65,14 @@ public class TrackHandler
     public static boolean CheckWin(Kart kart)
     {
         //start finish line always in first rectangle, check to see if kart was in said rectangle
-        if ((circuits.tracks.get(0).rectangles.get(0).boundsX[0] <= kart.prevKartPos[0] && kart.prevKartPos[0] <= circuits.tracks.get(0).rectangles.get(0).boundsX[1]) && (circuits.tracks.get(0).rectangles.get(0).boundsY[0] <= kart.prevKartPos[1] && kart.prevKartPos[1] <= circuits.tracks.get(0).rectangles.get(0).boundsY[1]))
+        if ((circuits.tracks.get(selectedTrack).rectangles.get(0).boundsX[0] <= kart.prevKartPos[0] && kart.prevKartPos[0] <= circuits.tracks.get(selectedTrack).rectangles.get(0).boundsX[1]) && (circuits.tracks.get(selectedTrack).rectangles.get(0).boundsY[0] <= kart.prevKartPos[1] && kart.prevKartPos[1] <= circuits.tracks.get(selectedTrack).rectangles.get(0).boundsY[1]))
         {
             //get the direction needed to cross start finish line
             //0 is heading upward
             //1 is going right
             //2 is going down
             //3 is going left
-            switch (circuits.tracks.get(0).finishDirection)
+            switch (circuits.tracks.get(selectedTrack).finishDirection)
             {
                 case 0:
                     //if kart was below the line for the start finish line, and is now above said line
@@ -118,7 +119,7 @@ public class TrackHandler
                     break;
             }
         }
-        return kart.kartLapCount > circuits.tracks.get(0).totalLaps;
+        return kart.kartLapCount > circuits.tracks.get(selectedTrack).totalLaps;
     }
 
     /**
@@ -127,7 +128,7 @@ public class TrackHandler
      */
     public static void CheckCollision(Kart kart)
     {
-        for (TrackRectangles rectangles : circuits.tracks.get(0).rectangles)
+        for (TrackRectangles rectangles : circuits.tracks.get(selectedTrack).rectangles)
         {
             //check to see if kart was in the rectangle
             if ((rectangles.boundsX[0] <= kart.prevKartPos[0] && kart.prevKartPos[0] <= rectangles.boundsX[1]) && (rectangles.boundsY[0] <= kart.prevKartPos[1] && kart.prevKartPos[1] <= rectangles.boundsY[1]))
@@ -171,6 +172,84 @@ public class TrackHandler
                 }
             }
         }
+    }
+
+    /**
+     * Paints the track based on the track input data
+     * @param g
+     */
+    public static void PaintTrack(Graphics g)
+    {
+        g.setColor(Color.green);
+        g.fillRect(0, 0, circuits.tracks.get(selectedTrack).trackSize[0], circuits.tracks.get(selectedTrack).trackSize[0]);
+
+        for (TrackRectangles rectangles : circuits.tracks.get(selectedTrack).rectangles)
+        {
+            g.setColor(Color.gray);
+            g.fillRect(rectangles.boundsX[0], rectangles.boundsY[0], rectangles.boundsX[1] - rectangles.boundsX[0], rectangles.boundsY[1] - rectangles.boundsY[0]);
+
+            int rectCentre[] = new int[2];
+            rectCentre[0] = (rectangles.boundsX[1] + rectangles.boundsX[0]) / 2;
+            rectCentre[1] = (rectangles.boundsY[1] + rectangles.boundsY[0]) / 2;
+
+            Color c1 = Color.black;
+            Color c2 = Color.yellow;
+
+            if (rectangles.walls[0])
+            {
+                g.setColor(c1);
+                g.drawLine(rectangles.boundsX[0], rectangles.boundsY[0], rectangles.boundsX[1], rectangles.boundsY[0]);
+            }
+            else
+            {
+                g.setColor(c2);
+                g.drawLine(rectCentre[0], rectangles.boundsY[0], rectCentre[0], rectCentre[1]);
+            }
+
+            if (rectangles.walls[1])
+            {
+                g.setColor(c1);
+                g.drawLine(rectangles.boundsX[1], rectangles.boundsY[0], rectangles.boundsX[1], rectangles.boundsY[1]);
+            }
+            else
+            {
+                g.setColor(c2);
+                g.drawLine(rectCentre[0], rectCentre[1], rectangles.boundsX[1], rectCentre[1]);
+            }
+
+            if (rectangles.walls[2])
+            {
+                g.setColor(c1);
+                g.drawLine(rectangles.boundsX[0], rectangles.boundsY[1], rectangles.boundsX[1], rectangles.boundsY[1]);
+            }
+            else
+            {
+                g.setColor(c2);
+                g.drawLine(rectCentre[0], rectCentre[1], rectCentre[0], rectangles.boundsY[1]);
+            }
+
+            if (rectangles.walls[3])
+            {
+                g.setColor(c1);
+                g.drawLine(rectangles.boundsX[0], rectangles.boundsY[0], rectangles.boundsX[0], rectangles.boundsY[1]);
+            }
+            else
+            {
+                g.setColor(c2);
+                g.drawLine(rectangles.boundsX[0], rectCentre[1], rectCentre[0], rectCentre[1]);
+            }
+        }
+
+        g.setColor(Color.white);
+        if (circuits.tracks.get(selectedTrack).finishDirection == 0 || circuits.tracks.get(selectedTrack).finishDirection == 2)
+        {
+            g.drawLine(circuits.tracks.get(selectedTrack).rectangles.get(0).boundsX[0], circuits.tracks.get(selectedTrack).startFinish, circuits.tracks.get(selectedTrack).rectangles.get(0).boundsX[1], circuits.tracks.get(selectedTrack).startFinish);
+        }
+        else if (circuits.tracks.get(selectedTrack).finishDirection == 1 || circuits.tracks.get(selectedTrack).finishDirection == 3)
+        {
+            g.drawLine(circuits.tracks.get(selectedTrack).startFinish, circuits.tracks.get(selectedTrack).rectangles.get(0).boundsY[0], circuits.tracks.get(selectedTrack).startFinish, circuits.tracks.get(selectedTrack).rectangles.get(0).boundsY[1]);
+        }
+
     }
 
     /**

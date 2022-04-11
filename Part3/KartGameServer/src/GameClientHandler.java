@@ -9,11 +9,8 @@ public class GameClientHandler implements Runnable
     private String line;
     private DataOutputStream outputStream;
 
-    private ObjectOutput objectOutput = null;
-    private ObjectInput objectInput = null;
-
-    private static Kart p1Kart = null;
-    private static Kart p2Kart = null;
+    private static int[] p1Kart = {0, 0, 0, 0};
+    private static int[] p2Kart = {0, 0, 0, 0};
 
     private String player;
 
@@ -35,8 +32,6 @@ public class GameClientHandler implements Runnable
         {
             inputStream = new BufferedReader(new InputStreamReader(server.getInputStream()));
             outputStream = new DataOutputStream(server.getOutputStream());
-            objectInput = new ObjectInputStream(server.getInputStream());
-            objectOutput = new ObjectOutputStream(server.getOutputStream());
 
             while (true)
             {
@@ -64,8 +59,6 @@ public class GameClientHandler implements Runnable
 
             outputStream.close();
             inputStream.close();
-            objectOutput.close();
-            objectInput.close();
             server.close();
         }
         catch (Exception e)
@@ -91,57 +84,13 @@ public class GameClientHandler implements Runnable
 
     private void SendKart()
     {
-
-    }
-
-    private void SendOtherKart()
-    {
-        SendMessage("other_kart");
-
-        Kart send = null;
-
-        switch (player)
+        if (player == "p1")
         {
-            case "p1":
-                send = p2Kart;
-                break;
-            case "p2":
-                send = p1Kart;
-                break;
+            SendMessage("other_kart " + p2Kart[0] + " " + p2Kart[1] + " " + p2Kart[2] + " " + p2Kart[3]);
         }
-
-        try
+        else
         {
-            objectOutput.writeObject(send);
-            objectOutput.flush();
-        }
-        catch (Exception e)
-        {
-
-        }
-    }
-
-
-    private void ReceiveKart()
-    {
-        Kart input = null;
-
-        try
-        {
-            input = (Kart) objectInput.readObject();
-            switch (player)
-            {
-                case "p1":
-                    p1Kart = input;
-                    break;
-                case "p2":
-                    p2Kart = input;
-                    break;
-            }
-        }
-        catch (Exception e)
-        {
-
+            SendMessage("other_kart " + p1Kart[0] + " " + p1Kart[1] + " " + p1Kart[2] + " " + p1Kart[3]);
         }
     }
 
@@ -159,10 +108,9 @@ public class GameClientHandler implements Runnable
 
     private void HandleClientResponse(String response)
     {
-        //String[] responseParts = response.split(" ");
-        System.out.println(response);
+        String[] responseParts = response.split(" ");
 
-        switch (response)
+        switch (responseParts[0])
         {
             case "ping":
                 try
@@ -178,7 +126,6 @@ public class GameClientHandler implements Runnable
 
                 break;
             case "request":
-                //Return player number
                 if (ServerHandler.player == 0)
                 {
                     player = "p1";
@@ -201,13 +148,22 @@ public class GameClientHandler implements Runnable
                 ServerHandler.StartGame();
 
                 break;
-            case "kart":
-                ReceiveKart();
-
-                break;
             case "update_kart":
-                ReceiveKart();
-                SendOtherKart();
+                if (player == "p1")
+                {
+                    p1Kart[0] = Integer.parseInt(responseParts[1]);
+                    p1Kart[1] = Integer.parseInt(responseParts[2]);
+                    p1Kart[2] = Integer.parseInt(responseParts[3]);
+                    p1Kart[3] = Integer.parseInt(responseParts[4]);
+                }
+                else
+                {
+                    p2Kart[0] = Integer.parseInt(responseParts[1]);
+                    p2Kart[1] = Integer.parseInt(responseParts[2]);
+                    p2Kart[2] = Integer.parseInt(responseParts[3]);
+                    p2Kart[3] = Integer.parseInt(responseParts[4]);
+                }
+                SendKart();
 
                 break;
             case "collision":

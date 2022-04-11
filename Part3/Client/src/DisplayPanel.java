@@ -122,7 +122,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         add(ipBox);
 
         portBox = new JTextField();
-        portBox.setText("4444");
+        portBox.setText("5000");
         portBox.setBounds(300, 325, 250, 75);
         portBox.setVisible(false);
         portBox.setEnabled(false);
@@ -441,6 +441,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
                     //then see if it's below a set variable to see if the karts are too close to each other
                     if (Math.abs(racers[i].kartPosition[0] - racers[j].kartPosition[0]) < 20 && Math.abs(racers[i].kartPosition[1] - racers[j].kartPosition[1]) < 20)
                     {
+                        SocketSender.SendMessage("collision");
                         Crashed();
                     }
                 }
@@ -448,10 +449,8 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         }
         if (online)
         {
-            //update kart to server
+            SocketSender.SendOwnKart();
         }
-
-        SocketSender.SendOwnKart();
 
         repaint();
     }
@@ -553,30 +552,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
 
         if (outOfMenu) //when playing the game
         {
-            //Code from part 2 of the assignment
-            //draws the track to be raced on
-            g.setColor(Color.green);
-            g.fillRect(0, 0, 850, 650);
-
-            g.setColor(Color.gray);
-            g.fillRect(50, 100, 750, 500);
-
-            Color c1 = Color.green;
-            g.setColor(c1);
-            g.fillRect(150, 200, 550, 300); // grass
-
-            Color c2 = Color.black;
-            g.setColor(c2);
-            g.drawRect(50, 100, 750, 500);  // outer edge
-            g.drawRect(150, 200, 550, 300); // inner edge
-
-            Color c3 = Color.yellow;
-            g.setColor(c3);
-            g.drawRect(100, 150, 650, 400); // mid-lane marker
-
-            Color c4 = Color.white;
-            g.setColor(c4);
-            g.drawLine(425, 500, 425, 600); // start line
+            TrackHandler.PaintTrack(g);
 
             //draws all the karts
             for (Kart racer : racers)
