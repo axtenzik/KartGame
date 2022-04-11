@@ -259,9 +259,6 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
      */
     private void StartGame()
     {
-        //Load/Create the track to be driven on
-        TrackHandler.LoadTracks(0);
-
         //Initialise the timers for play
         updateTimer = new Timer(timeStep, this::TimerPerformed);
         lightsTimer = new Timer(1000, this::CountdownPerformed);
@@ -464,6 +461,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
             numberAI = 3;
             multi = false;
             addKarts();
+            TrackHandler.LoadTracks(0);
 
             CloseMenu();
             InitialisePause();
@@ -474,6 +472,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
         {
             outOfMenu = true;
             addKarts();
+            TrackHandler.LoadTracks(0);
 
             CloseMenu();
             InitialisePause();
@@ -498,6 +497,7 @@ public class DisplayPanel extends JPanel implements KeyListener, ActionListener
             multi = false;
             online = true;
             addKarts();
+            TrackHandler.LoadTracks(0);
 
             CloseOnline();
             InitialisePause();
